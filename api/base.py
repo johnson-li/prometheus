@@ -1,21 +1,24 @@
-import json
 import functools
+import json
+
+from google.appengine.ext import ndb
+
+import response_code
 from flask import request, jsonify
 from flask.wrappers import Response
-import response_code
 
 __author__ = 'Johnson'
 
 
-def handle_mobile_request(func, *args, **kwargs):
+def handle_restful_request(func, *args, **kwargs):
     kwargs = kwargs.copy()
     if request.args:
         kwargs.update(request.args.to_dict())
     if request.data:
         data = json.loads(request.data)
-        # to support escape character in json value
-        data = {k: (lambda x: x.replace('\\n', '\n'))(v) for k, v in data.items()}
-        print data['text']
+        # escape character is only supported in the top level value field
+        data = {k: (lambda x: x.replace('\\n', '\n') if isinstance(x, (str, unicode)) else x)(v) for k, v in
+                data.items()}
         kwargs.update(data)
     if request.form:
         kwargs.update(request.form.to_dict())
@@ -38,13 +41,15 @@ def restful_request(func):
     def wrapped(*args, **kwargs):
         resp = {'rc': response_code.SUCCESS, 'content': ''}
         try:
-            data = handle_mobile_request(func, *args, **kwargs)
+            data = handle_restful_request(func, *args, **kwargs)
             if isinstance(data, Response):
                 return data
             elif isinstance(data, dict) or isinstance(data, (str, unicode)):
                 resp['content'] = data
             elif isinstance(data, (int, long, float, bool)):
                 resp['content'] = str(data)
+            elif isinstance(data, ndb.Model):
+                resp['content'] = data.to_dict()
             else:
                 raise Exception('Unknown return type: ' + str(type(data)))
         except Exception as e:
