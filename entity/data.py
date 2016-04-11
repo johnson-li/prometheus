@@ -10,5 +10,6 @@ class JsonData(ndb.Model):
 class ApiRequestData(ndb.Model):
     hostName = ndb.StringProperty()
     targetUrl = ndb.StringProperty()
-    traceRoute = ndb.StringProperty()
-    transferTimes = ndb.IntegerProperty(repeated=True)
+    traceRoute = ndb.StringProperty(indexed=False)
+    httpsTransferTime = ndb.IntegerProperty(repeated=True, indexed=False)
+    http2TransferTime = ndb.IntegerProperty(repeated=True, indexed=False)

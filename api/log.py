@@ -1,6 +1,6 @@
-from flask import Blueprint
-from entity.data import JsonData, ApiRequestData
 from base import restful_request
+from entity.data import JsonData, ApiRequestData
+from flask import Blueprint
 
 __author__ = 'johnson'
 
@@ -17,8 +17,8 @@ def universal_log(json):
 
 @log_api.route('/log/api_request', methods=['POST'])
 @restful_request
-def ping_log(host_name, target_url, transfer_times, trace_route):
+def ping_log(host_name, target_url, http2_transfer_time, https_transfer_time, trace_route):
     api_request_data = ApiRequestData(hostName=host_name, targetUrl=target_url, traceRoute=trace_route,
-                                      transferTimes=transfer_times)
+                                      http2TransferTime=http2_transfer_time, httpsTransferTime=https_transfer_time)
     api_request_data.put()
     return api_request_data
