@@ -4,7 +4,7 @@ import json
 from google.appengine.ext import ndb
 
 import response_code
-from flask import request, jsonify
+from flask import request, jsonify, stream_with_context
 from flask.wrappers import Response
 
 __author__ = 'Johnson'
@@ -24,7 +24,6 @@ def handle_restful_request(func, *args, **kwargs):
         kwargs.update(request.form.to_dict())
     if request.files:
         kwargs.update({k: request.files.getlist(k) for k in request.files})
-    print request, kwargs
     return func(*args, **kwargs)
 
 
@@ -59,3 +58,16 @@ def restful_request(func):
 
     _build_deco_chain(wrapped, func, restful_request)
     return wrapped
+
+
+def file_request(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        data = handle_restful_request(func, *args, **kwargs)
+        response = Response(stream_with_context(data['data']))
+        response.headers['Content-Type'] = 'application/octet-stream'
+        response.headers['content-disposition'] = 'attachment; filename="' + data['name'] + '"'
+        return response
+
+    return wrapped
+

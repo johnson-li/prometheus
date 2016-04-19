@@ -1,10 +1,8 @@
 import os
 
 import cloudstorage
+from base import restful_request, file_request
 from flask import Blueprint
-from google.appengine.api import app_identity
-
-from base import restful_request
 
 __author__ = 'johnson'
 
@@ -35,8 +33,23 @@ def upload(static_files):
 
 
 @static_api.route('/static/download', methods=['GET'])
-@restful_request
+@file_request
 def download(token):
-    bucket_name = os.environ.get('prometheus-1151.appspot.com', app_identity.get_default_gcs_bucket_name())
+    """ Download file from Google Cloud Storage by file name
+    :param token: file name
+    :return:
+    """
     file_name = '/' + bucket_name + '/' + token
-    return 'pang'
+    return {
+        'data': generator(file_name),
+        'name': token
+    }
+
+
+def generator(file_name):
+    gcs_file = cloudstorage.open(file_name)
+    data = gcs_file.read(1 << 20)
+    while data:
+        yield data
+        data = gcs_file.read(1 << 20)
+    gcs_file.close()
