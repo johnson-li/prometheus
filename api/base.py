@@ -35,22 +35,30 @@ def _build_deco_chain(decoding_func, decoded_func, decoding_obj):
     setattr(_real_func, '_decorators', getattr(_real_func, '_decorators', []) + [decoding_obj])
 
 
+def serialise(data):
+    if isinstance(data, Response):
+        return data
+    elif isinstance(data, (str, unicode)):
+        return data
+    elif isinstance(data, (int, long, float, bool)):
+        return str(data)
+    elif isinstance(data, ndb.Model):
+        return data.to_dict()
+    elif isinstance(data, dict):
+        return {serialise(key): serialise(val) for key, val in data.iteritems()}
+    elif isinstance(data, list):
+        return [serialise(i) for i in data]
+    else:
+        raise Exception('Unknown return type: ' + str(type(data)))
+
+
 def restful_request(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         resp = {'rc': response_code.SUCCESS, 'content': ''}
         try:
             data = handle_restful_request(func, *args, **kwargs)
-            if isinstance(data, Response):
-                return data
-            elif isinstance(data, dict) or isinstance(data, (str, unicode)):
-                resp['content'] = data
-            elif isinstance(data, (int, long, float, bool)):
-                resp['content'] = str(data)
-            elif isinstance(data, ndb.Model):
-                resp['content'] = data.to_dict()
-            else:
-                raise Exception('Unknown return type: ' + str(type(data)))
+            resp['content'] = serialise(data)
         except Exception as e:
             resp['rc'] = response_code.FAIL
             resp['content'] = type(e).__name__ + ' ' + e.message
@@ -70,4 +78,3 @@ def file_request(func):
         return response
 
     return wrapped
-

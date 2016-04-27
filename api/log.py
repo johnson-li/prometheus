@@ -22,3 +22,17 @@ def ping_log(host_name, target_url, http2_transfer_time, https_transfer_time, tr
                                       http2TransferTime=http2_transfer_time, httpsTransferTime=https_transfer_time)
     api_request_data.put()
     return api_request_data
+
+
+@log_api.route('/log/all', methods=['GET'])
+@restful_request
+def get_all():
+    return ApiRequestData.query().fetch()
+
+
+@log_api.route('/log/all_by_page', methods=['GET'])
+@restful_request
+def get_all_by_page(page_size=20, index=0):
+    page_size = int(page_size)
+    index = int(index)
+    return ApiRequestData.query().fetch(page_size, offset=page_size * index)
