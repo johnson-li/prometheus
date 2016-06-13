@@ -19,7 +19,12 @@ def universal_log(json):
 
 @log_api.route('/log/api_request', methods=['POST'])
 @restful_request
-def ping_log(host_name, target_url, http2_transfer_time, https_transfer_time, trace_route, time_stamp=int(time.time())):
+def request_log(host_name, target_url, http2_transfer_time,
+                https_transfer_time, trace_route="", time_stamp=int(time.time())):
+    if not isinstance(http2_transfer_time, (list, tuple)):
+        http2_transfer_time = [http2_transfer_time]
+    if not isinstance(https_transfer_time, (list, tuple)):
+        https_transfer_time = [https_transfer_time]
     api_request_data = ApiRequestData(hostName=host_name, targetUrl=target_url, traceRoute=trace_route,
                                       http2TransferTime=http2_transfer_time, httpsTransferTime=https_transfer_time,
                                       timeStamp=time_stamp)

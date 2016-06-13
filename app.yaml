@@ -34,3 +34,9 @@ handlers:
 libraries:
 - name: jinja2
   version: latest
+
+# Exclude files of no relation with web server
+skip_files:
+- ^data$
+- ^matlab$
+- ^(.*/)?.*\.py[co]$
