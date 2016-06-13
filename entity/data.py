@@ -13,3 +13,4 @@ class ApiRequestData(ndb.Model):
     traceRoute = ndb.StringProperty(indexed=False)
     httpsTransferTime = ndb.IntegerProperty(repeated=True, indexed=False)
     http2TransferTime = ndb.IntegerProperty(repeated=True, indexed=False)
+    timeStamp = ndb.IntegerProperty()
