@@ -1,7 +1,7 @@
 import time
 
 from base import restful_request
-from entity.data import JsonData, ApiRequestData
+from entity.data import JsonData, ApiRequestData, TrafficSizeData
 from flask import Blueprint
 
 __author__ = 'johnson'
@@ -32,6 +32,15 @@ def request_log(host_name, target_url, http2_transfer_time, https_transfer_time,
                                       http2RequestSize=http2_request_size, http2ResponseSize=http2_response_size)
     api_request_data.put()
     return api_request_data
+
+
+@log_api.route('/log/traffic_size', methods=['POST'])
+def traffic_size(host_name, target_url, https_request_size, http2_request_size,
+                 http2_response_size, time_stamp=int(time.time()), request_times=0):
+    traffic_size_data = TrafficSizeData(host_name, target_url, time_stamp, request_times, https_request_size,
+                                        https_response_size, http2_request_size, http2_response_size)
+    traffic_size_data.put()
+    return traffic_size_data
 
 
 @log_api.route('/log/all', methods=['GET'])
