@@ -19,15 +19,17 @@ def universal_log(json):
 
 @log_api.route('/log/api_request', methods=['POST'])
 @restful_request
-def request_log(host_name, target_url, http2_transfer_time,
-                https_transfer_time, trace_route="", time_stamp=int(time.time())):
+def request_log(host_name, target_url, http2_transfer_time, https_transfer_time, https_request_size, http2_request_size,
+                https_response_size, http2_response_size, trace_route="", time_stamp=int(time.time()), request_times=0):
     if not isinstance(http2_transfer_time, (list, tuple)):
         http2_transfer_time = [http2_transfer_time]
     if not isinstance(https_transfer_time, (list, tuple)):
         https_transfer_time = [https_transfer_time]
     api_request_data = ApiRequestData(hostName=host_name, targetUrl=target_url, traceRoute=trace_route,
                                       http2TransferTime=http2_transfer_time, httpsTransferTime=https_transfer_time,
-                                      timeStamp=time_stamp)
+                                      timeStamp=time_stamp, requestTimes=request_times,
+                                      httpsRequestSize=https_request_size, httpsResponseSize=https_response_size,
+                                      http2RequestSize=http2_request_size, http2ResponseSize=http2_response_size)
     api_request_data.put()
     return api_request_data
 

@@ -14,3 +14,8 @@ class ApiRequestData(ndb.Model):
     httpsTransferTime = ndb.IntegerProperty(repeated=True, indexed=False)
     http2TransferTime = ndb.IntegerProperty(repeated=True, indexed=False)
     timeStamp = ndb.IntegerProperty()
+    requestTimes = ndb.IntegerProperty()
+    httpsRequestSize = ndb.IntegerProperty()
+    httpsResponseSize = ndb.IntegerProperty()
+    http2RequestSize = ndb.IntegerProperty()
+    http2ResponseSize = ndb.IntegerProperty()
