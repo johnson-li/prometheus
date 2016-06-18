@@ -1,7 +1,7 @@
 import time
 
 from base import restful_request
-from entity.data import JsonData, ApiRequestData, TrafficSizeData
+from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData
 from flask import Blueprint
 
 __author__ = 'johnson'
@@ -35,6 +35,7 @@ def request_log(host_name, target_url, http2_transfer_time, https_transfer_time,
 
 
 @log_api.route('/log/traffic_size', methods=['POST'])
+@restful_request
 def traffic_size(host_name, target_url, https_request_size, http2_request_size,
                  http2_response_size, time_stamp=int(time.time()), request_times=0):
     traffic_size_data = TrafficSizeData(host_name, target_url, time_stamp, request_times, https_request_size,
@@ -55,3 +56,11 @@ def get_all_by_page(page_size=20, index=0):
     page_size = int(page_size)
     index = int(index)
     return ApiRequestData.query().fetch(page_size, offset=page_size * index)
+
+
+@log_api.route('/log/http2_check', methods=['POST'])
+@restful_request
+def http2_check(host, source, support, errors, time_stamp=int(time.time())):
+    data = Http2SupportData(host, source, time_stamp, support, errors)
+    data.put()
+    return data

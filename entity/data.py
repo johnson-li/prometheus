@@ -36,3 +36,14 @@ class TrafficSizeData(ndb.Model):
     httpsResponseSize = ndb.IntegerProperty()
     http2RequestSize = ndb.IntegerProperty()
     http2ResponseSize = ndb.IntegerProperty()
+
+
+class Http2SupportData(ndb.Model):
+    """
+    Log whether a host supports http2 or not
+    """
+    host = ndb.StringProperty()
+    source = ndb.StringProperty()
+    timeStamp = ndb.IntegerProperty()
+    support = ndb.BooleanProperty()
+    errors = ndb.StringProperty(repeated=True, indexed=False)
