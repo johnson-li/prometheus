@@ -20,7 +20,8 @@ def universal_log(json):
 @log_api.route('/log/api_request', methods=['POST'])
 @restful_request
 def request_log(host_name, target_url, http2_transfer_time, https_transfer_time, https_request_size, http2_request_size,
-                https_response_size, http2_response_size, trace_route="", time_stamp=int(time.time()), request_times=0):
+                https_response_size, http2_response_size, trace_route="", time_stamp=int(time.time() * 1000),
+                request_times=0):
     if not isinstance(http2_transfer_time, (list, tuple)):
         http2_transfer_time = [http2_transfer_time]
     if not isinstance(https_transfer_time, (list, tuple)):
@@ -37,7 +38,7 @@ def request_log(host_name, target_url, http2_transfer_time, https_transfer_time,
 @log_api.route('/log/traffic_size', methods=['POST'])
 @restful_request
 def traffic_size(host_name, target_url, https_request_size, http2_request_size,
-                 http2_response_size, time_stamp=int(time.time()), request_times=0):
+                 http2_response_size, time_stamp=int(time.time() * 1000), request_times=0):
     traffic_size_data = TrafficSizeData(host_name, target_url, time_stamp, request_times, https_request_size,
                                         https_response_size, http2_request_size, http2_response_size)
     traffic_size_data.put()
@@ -60,7 +61,7 @@ def get_all_by_page(page_size=20, index=0):
 
 @log_api.route('/log/http2_check', methods=['POST'])
 @restful_request
-def http2_check(host, source, support, errors, time_stamp=int(time.time())):
-    data = Http2SupportData(host, source, time_stamp, support, errors)
+def http2_check(host, source, support, errors=[], time_stamp=int(time.time() * 1000)):
+    data = Http2SupportData(host=host, source=source, timeStamp=time_stamp, support=support, errors=errors)
     data.put()
     return data
