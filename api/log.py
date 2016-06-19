@@ -37,10 +37,12 @@ def request_log(host_name, target_url, http2_transfer_time, https_transfer_time,
 
 @log_api.route('/log/traffic_size', methods=['POST'])
 @restful_request
-def traffic_size(host_name, target_url, https_request_size, http2_request_size,
+def traffic_size(host_name, target_url, https_request_size, https_response_size, http2_request_size,
                  http2_response_size, time_stamp=int(time.time() * 1000), request_times=0):
-    traffic_size_data = TrafficSizeData(host_name, target_url, time_stamp, request_times, https_request_size,
-                                        https_response_size, http2_request_size, http2_response_size)
+    traffic_size_data = TrafficSizeData(hostName=host_name, targetUrl=target_url, timeStamp=time_stamp,
+                                        requestTimes=request_times, httpsRequestSize=https_request_size,
+                                        httpsResponseSize=https_response_size, http2RequestSize=http2_request_size,
+                                        http2ResponseSize=http2_response_size)
     traffic_size_data.put()
     return traffic_size_data
 
