@@ -1,5 +1,7 @@
 import json
 
+import numpy
+
 import ip_util
 
 ip_map = {}
@@ -9,6 +11,10 @@ URL_LIST = [u'https://planetlab1.ie.cuhk.edu.hk:5555/', u'https://planet-lab1.it
             u'https://planetlab1.ecs.vuw.ac.nz:5555/', u'https://planetvs2.informatik.uni-stuttgart.de:5555/',
             u'https://planetlab4.goto.info.waseda.ac.jp:5555/']
 APP_ENGINE = 'https://isports-1093.appspot.com:443/ping'
+
+
+def avg(iterable):
+    return sum(iterable) / len(iterable)
 
 
 def get_continent(data):
@@ -103,19 +109,19 @@ def parse_single_request():
             res_list.append(100 * (https - http2) / float(https))
             if sum(data['http2TransferTime']) > sum(data['httpsTransferTime']):
                 count_map[data['hostName']] = count_map.get(data['hostName'], 0) + 1
-        # print json.dumps(count_map, indent=2)
-        # print('data = ' + str(res_list) + ';')
-        # https = 'https = ['
-        # http2 = 'http2 = ['
-        # for data in data_list:
-        #     for time in data['http2TransferTime']:
-        #         http2 += str(time) + ','
-        #     for time in data['httpsTransferTime']:
-        #         https += str(time) + ','
-        # https += '];'
-        # http2 += '];'
-        # print https
-        # print http2
+                # print json.dumps(count_map, indent=2)
+                # print('data = ' + str(res_list) + ';')
+                # https = 'https = ['
+                # http2 = 'http2 = ['
+                # for data in data_list:
+                #     for time in data['http2TransferTime']:
+                #         http2 += str(time) + ','
+                #     for time in data['httpsTransferTime']:
+                #         https += str(time) + ','
+                # https += '];'
+                # http2 += '];'
+                # print https
+                # print http2
     print(len(URL_LIST))
     print(json.dumps(count_map, indent=2))
 
@@ -141,11 +147,233 @@ def query_ip(ip_list):
     print(json.dumps({ip: ip_util.query_ip_info(ip) for ip in ip_list}))
 
 
+def load_request_data():
+    f = open('resource/api_request_data.json')
+    json_data = f.read()
+    return json.loads(json_data)['content']
+
+
+def load_traffic_data():
+    f = open('resource/traffic_size_all.json')
+    json_data = f.read()
+    return json.loads(json_data)['content']
+
+
+def http2_tcp_size():
+    data = load_request_data()
+    data = filter(lambda x: x.get('httpsResponseSize', 0) > 0, data)
+    data = filter(lambda x: x['targetUrl'] == 'https://www.google.com:443', data)
+    http2_time = {}
+    http2_req_size = {}
+    http2_res_size = {}
+    for d in data:
+        host = d['hostName']
+        http2_time.setdefault(host, []).extend(d['http2TransferTime'])
+        http2_req_size.setdefault(host, []).append(d['http2RequestSize'])
+        http2_res_size.setdefault(host, []).append(d['http2ResponseSize'])
+    hosts = {d['hostName'] for d in data}
+    req_var = {}
+    req_avg = {}
+    res_var = {}
+    res_avg = {}
+    for host in hosts:
+        req_size = http2_req_size.get(host)
+        res_size = http2_res_size.get(host)
+        req_avg[host] = numpy.average(req_size)
+        res_avg[host] = numpy.average(res_size)
+        req_var[host] = numpy.std(req_size)
+        res_var[host] = numpy.std(res_size)
+    req_avg_avg = avg(req_avg.values())
+    req_avg_var = numpy.std(req_avg.values())
+    res_avg_avg = avg(res_avg.values())
+    res_avg_var = numpy.std(res_avg.values())
+    print(req_avg_avg)
+    print(req_avg_var)
+    print(res_avg.values())
+    print(res_avg_avg)
+    print(res_avg_var)
+
+
+def https_tcp_size():
+    data = load_request_data()
+    data = filter(lambda x: x.get('httpsResponseSize', 0) > 0, data)
+    data = filter(lambda x: x['targetUrl'] == 'https://www.google.com:443', data)
+    https_time = {}
+    https_req_size = {}
+    https_res_size = {}
+    for d in data:
+        host = d['hostName']
+        https_time.setdefault(host, []).extend(d['httpsTransferTime'])
+        https_req_size.setdefault(host, []).append(d['httpsRequestSize'])
+        https_res_size.setdefault(host, []).append(d['httpsResponseSize'])
+    hosts = {d['hostName'] for d in data}
+    req_var = {}
+    req_avg = {}
+    res_var = {}
+    res_avg = {}
+    for host in hosts:
+        req_size = https_req_size.get(host)
+        res_size = https_res_size.get(host)
+        req_avg[host] = numpy.average(req_size)
+        res_avg[host] = numpy.average(res_size)
+        req_var[host] = numpy.std(req_size)
+        res_var[host] = numpy.std(res_size)
+    req_avg_avg = avg(req_avg.values())
+    req_avg_var = numpy.std(req_avg.values())
+    res_avg_avg = avg(res_avg.values())
+    res_avg_var = numpy.std(res_avg.values())
+    print('host num: ' + str(len(hosts)))
+    print(req_avg_avg)
+    print(req_avg_var)
+    print(res_avg_avg)
+    print(res_avg_var)
+
+
+def cmp_tcp_size():
+    data = load_request_data()
+    data = filter(lambda x: x.get('httpsResponseSize', 0) > 0, data)
+    data = filter(lambda x: x['targetUrl'] == 'https://www.google.com:443', data)
+    https_req_size = {}
+    https_res_size = {}
+    http2_req_size = {}
+    http2_res_size = {}
+    for d in data:
+        host = d['hostName']
+        https_req_size.setdefault(host, []).append(d['httpsRequestSize'])
+        https_res_size.setdefault(host, []).append(d['httpsResponseSize'])
+        http2_req_size.setdefault(host, []).append(d['http2RequestSize'])
+        http2_res_size.setdefault(host, []).append(d['http2ResponseSize'])
+    hosts = {d['hostName'] for d in data}
+    https_better_res = 0
+    http2_better_res = 0
+    https_better_req = 0
+    http2_better_req = 0
+    for host in hosts:
+        hs_req_size = https_req_size.get(host)
+        hs_res_size = https_res_size.get(host)
+        h2_req_size = http2_req_size.get(host)
+        h2_res_size = http2_res_size.get(host)
+        if h2_req_size > hs_req_size:
+            https_better_req += 1
+        else:
+            http2_better_req += 1
+        if h2_res_size > hs_res_size:
+            https_better_res += 1
+        else:
+            http2_better_res += 1
+    print(http2_better_req * 100 / float(http2_better_req + https_better_req))
+    print(http2_better_res * 100 / float(http2_better_res + https_better_res))
+
+
+def https_ip_size():
+    traffic_data = load_traffic_data()
+    https_req_size = {}
+    https_res_size = {}
+    for d in traffic_data:
+        host = d['hostName']
+        https_req_size.setdefault(host, []).append(d['httpsRequestSize'])
+        https_res_size.setdefault(host, []).append(d['httpsResponseSize'])
+    hosts = {d['hostName'] for d in traffic_data}
+    req_var = {}
+    req_avg = {}
+    res_var = {}
+    res_avg = {}
+    for host in hosts:
+        req_size = https_req_size.get(host)
+        res_size = https_res_size.get(host)
+        req_avg[host] = numpy.average(req_size)
+        res_avg[host] = numpy.average(res_size)
+        req_var[host] = numpy.std(req_size)
+        res_var[host] = numpy.std(res_size)
+    req_avg_avg = avg(req_avg.values())
+    req_avg_var = numpy.std(req_avg.values())
+    res_avg_avg = avg(res_avg.values())
+    res_avg_var = numpy.std(res_avg.values())
+    print('host num: ' + str(len(hosts)))
+    print(req_avg_avg)
+    print(req_avg_var)
+    print(res_avg_avg)
+    print(res_avg_var)
+
+
+def http2_ip_size():
+    traffic_data = load_traffic_data()
+    http2_req_size = {}
+    http2_res_size = {}
+    for d in traffic_data:
+        host = d['hostName']
+        http2_req_size.setdefault(host, []).append(d['http2RequestSize'])
+        http2_res_size.setdefault(host, []).append(d['http2ResponseSize'])
+    hosts = {d['hostName'] for d in traffic_data}
+    req_var = {}
+    req_avg = {}
+    res_var = {}
+    res_avg = {}
+    for host in hosts:
+        req_size = http2_req_size.get(host)
+        res_size = http2_res_size.get(host)
+        req_avg[host] = numpy.average(req_size)
+        res_avg[host] = numpy.average(res_size)
+        req_var[host] = numpy.std(req_size)
+        res_var[host] = numpy.std(res_size)
+    req_avg_avg = avg(req_avg.values())
+    req_avg_var = numpy.std(req_avg.values())
+    res_avg_avg = avg(res_avg.values())
+    res_avg_var = numpy.std(res_avg.values())
+    print('host num: ' + str(len(hosts)))
+    print({d['targetUrl'] for d in traffic_data})
+    print(req_avg_avg)
+    print(req_avg_var)
+    print(res_avg_avg)
+    print(res_avg_var)
+
+
+def cmp_ip_size():
+    data = load_traffic_data()
+    https_req_size = {}
+    https_res_size = {}
+    http2_req_size = {}
+    http2_res_size = {}
+    for d in data:
+        host = d['hostName']
+        https_req_size.setdefault(host, []).append(d['httpsRequestSize'])
+        https_res_size.setdefault(host, []).append(d['httpsResponseSize'])
+        http2_req_size.setdefault(host, []).append(d['http2RequestSize'])
+        http2_res_size.setdefault(host, []).append(d['http2ResponseSize'])
+    hosts = {d['hostName'] for d in data}
+    https_better_res = 0
+    http2_better_res = 0
+    https_better_req = 0
+    http2_better_req = 0
+    for host in hosts:
+        hs_req_size = https_req_size.get(host)
+        hs_res_size = https_res_size.get(host)
+        h2_req_size = http2_req_size.get(host)
+        h2_res_size = http2_res_size.get(host)
+        if h2_req_size > hs_req_size:
+            https_better_req += 1
+        else:
+            http2_better_req += 1
+        if h2_res_size > hs_res_size:
+            https_better_res += 1
+        else:
+            http2_better_res += 1
+    print(http2_better_req * 100 / float(http2_better_req + https_better_req))
+    print(http2_better_res * 100 / float(http2_better_res + https_better_res))
+
+
 def main():
-    parse_hosts()
-    parse_single_request()
-    # parse_requests()
-    # query_ip(['planetlab1.cs.ucla.edu'])
+    # https_tcp_size()
+    # http2_tcp_size()
+    # http2_ip_size()
+    cmp_tcp_size()
+    cmp_ip_size()
+
+
+# parse_hosts()
+# parse_single_request()
+# parse_requests()
+# query_ip(['planetlab1.cs.ucla.edu'])
 
 
 if __name__ == '__main__':
