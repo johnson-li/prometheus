@@ -36,6 +36,10 @@ class TrafficSizeData(ndb.Model):
     httpsResponseSize = ndb.IntegerProperty()
     http2RequestSize = ndb.IntegerProperty()
     http2ResponseSize = ndb.IntegerProperty()
+    httpsRequestSizeTcp = ndb.IntegerProperty()
+    httpsResponseSizeTcp = ndb.IntegerProperty()
+    http2RequestSizeTcp = ndb.IntegerProperty()
+    http2ResponseSizeTcp = ndb.IntegerProperty()
 
 
 class Http2SupportData(ndb.Model):

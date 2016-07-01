@@ -38,19 +38,18 @@ def request_log(host_name, target_url, http2_transfer_time, https_transfer_time,
 @log_api.route('/log/traffic_size', methods=['POST'])
 @restful_request
 def traffic_size(host_name, target_url, https_request_size, https_response_size, http2_request_size,
-                 http2_response_size, time_stamp=int(time.time() * 1000), request_times=0):
+                 http2_response_size, https_request_size_tcp=0, https_response_size_tcp=0, http2_request_size_tcp=0,
+                 http2_response_size_tcp=0, time_stamp=int(time.time() * 1000), request_times=0):
     traffic_size_data = TrafficSizeData(hostName=host_name, targetUrl=target_url, timeStamp=time_stamp,
                                         requestTimes=request_times, httpsRequestSize=https_request_size,
                                         httpsResponseSize=https_response_size, http2RequestSize=http2_request_size,
-                                        http2ResponseSize=http2_response_size)
+                                        http2ResponseSize=http2_response_size,
+                                        httpsRequestSizeTcp=https_request_size_tcp,
+                                        httpsResponseSizeTcp=https_response_size_tcp,
+                                        http2RequestSizeTcp=http2_request_size_tcp,
+                                        http2ResponseSizeTcp=http2_response_size_tcp)
     traffic_size_data.put()
     return traffic_size_data
-
-
-@log_api.route('/log/all', methods=['GET'])
-@restful_request
-def get_all():
-    return ApiRequestData.query().fetch()
 
 
 @log_api.route('/log/all_by_page', methods=['GET'])
@@ -67,3 +66,21 @@ def http2_check(host, source, support, errors=[], time_stamp=int(time.time() * 1
     data = Http2SupportData(host=host, source=source, timeStamp=time_stamp, support=support, errors=errors)
     data.put()
     return data
+
+
+@log_api.route('/log/all', methods=['GET'])
+@restful_request
+def get_all():
+    return ApiRequestData.query().fetch()
+
+
+@log_api.route('/log/traffic_size_all', methods=['GET'])
+@restful_request
+def get_all_traffic_size():
+    return TrafficSizeData.query().fetch()
+
+
+@log_api.route('/log/http2_check_all', methods=['GET'])
+@restful_request
+def get_all_http2_check():
+    return Http2SupportData.query().fetch()
