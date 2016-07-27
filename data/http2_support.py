@@ -22,8 +22,8 @@ def main():
         d = data.get(page, None)
         if d and d['support']:
             support.append(page)
-    print len(support)
-    print json.dumps(support, indent=2)
+            print(page)
+    # print json.dumps(support, indent=2)
 
 
 if __name__ == '__main__':

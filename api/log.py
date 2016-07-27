@@ -1,7 +1,7 @@
 import time
 
 from base import restful_request
-from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData
+from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData, FullWebData
 from flask import Blueprint
 
 __author__ = 'johnson'
@@ -52,6 +52,25 @@ def traffic_size(host_name, target_url, https_request_size, https_response_size,
     return traffic_size_data
 
 
+@log_api.route('/log/full_web', methods=['POST'])
+@restful_request
+def full_web(host_name, target_url, https_request_size, https_response_size, http2_request_size,
+             http2_response_size, https_request_size_tcp, https_response_size_tcp, http2_request_size_tcp,
+             http2_response_size_tcp, https_transfer_time, http2_transfer_time, https_traces, http2_traces,
+             time_stamp=int(time.time() * 1000)):
+    full_web_data = FullWebData(hostName=host_name, targetUrl=target_url, timeStamp=time_stamp,
+                                httpsRequestSize=https_request_size, httpsTraces=https_traces, http2Traces=http2_traces,
+                                httpsResponseSize=https_response_size, http2RequestSize=http2_request_size,
+                                http2ResponseSize=http2_response_size,
+                                httpsRequestSizeTcp=https_request_size_tcp,
+                                httpsResponseSizeTcp=https_response_size_tcp,
+                                http2RequestSizeTcp=http2_request_size_tcp,
+                                http2ResponseSizeTcp=http2_response_size_tcp, httpsTransferTime=https_transfer_time,
+                                http2TransferTime=http2_transfer_time)
+    full_web_data.put()
+    return full_web_data
+
+
 @log_api.route('/log/all_by_page', methods=['GET'])
 @restful_request
 def get_all_by_page(page_size=20, index=0):
@@ -84,3 +103,11 @@ def get_all_traffic_size():
 @restful_request
 def get_all_http2_check():
     return Http2SupportData.query().fetch()
+
+
+@log_api.route('/log/full_web_all', methods=['GET'])
+@restful_request
+def get_all_full_web(page_size=20, index=0):
+    page_size = int(page_size)
+    index = int(index)
+    return FullWebData.query().fetch(page_size, offset=page_size * index)
