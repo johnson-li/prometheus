@@ -1,7 +1,7 @@
 import time
 
 from base import restful_request
-from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData, FullWebData
+from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData, FullWebData, MultiConnData
 from flask import Blueprint
 
 __author__ = 'johnson'
@@ -69,6 +69,28 @@ def full_web(host_name, target_url, https_request_size, https_response_size, htt
                                 http2TransferTime=http2_transfer_time)
     full_web_data.put()
     return full_web_data
+
+
+@log_api.route('/log/multi_conn', methods=['POST'])
+@restful_request
+def multi_conn(host_name, target_url, https_request_size, https_response_size, http2_request_size,
+               http2_response_size, https_request_size_tcp, https_response_size_tcp, http2_request_size_tcp,
+               http2_response_size_tcp, https_transfer_time, http2_transfer_time, https_traces, http2_traces,
+               https_channel_request_size, https_channel_response_size,
+               time_stamp=int(time.time() * 1000)):
+    multi_conn_data = MultiConnData(hostName=host_name, targetUrl=target_url, timeStamp=time_stamp,
+                                    httpsRequestSize=https_request_size, httpsTraces=https_traces,
+                                    http2Traces=http2_traces, httpsResponseSize=https_response_size,
+                                    http2RequestSize=http2_request_size, http2ResponseSize=http2_response_size,
+                                    httpsRequestSizeTcp=https_request_size_tcp,
+                                    httpsResponseSizeTcp=https_response_size_tcp,
+                                    http2RequestSizeTcp=http2_request_size_tcp,
+                                    http2ResponseSizeTcp=http2_response_size_tcp, httpsTransferTime=https_transfer_time,
+                                    http2TransferTime=http2_transfer_time,
+                                    httpsChannelRequestSize=https_channel_request_size,
+                                    httpsChannelResponseSize=https_channel_response_size)
+    multi_conn_data.put()
+    return multi_conn_data
 
 
 @log_api.route('/log/all_by_page', methods=['GET'])

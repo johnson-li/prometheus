@@ -73,3 +73,29 @@ class FullWebData(ndb.Model):
     http2ResponseSizeTcp = ndb.IntegerProperty(indexed=False)
     httpsTransferTime = ndb.IntegerProperty(indexed=False)
     http2TransferTime = ndb.IntegerProperty(indexed=False)
+
+
+class MultiConnData(ndb.Model):
+    """
+    Format of traces:
+        [{'url': url, 'time_elapsed': time_elapsed}, ...]
+    Format of channel size:
+        {channel: traffic_size, ...}
+    """
+    hostName = ndb.StringProperty()
+    targetUrl = ndb.StringProperty()
+    timeStamp = ndb.IntegerProperty()
+    httpsTraces = ndb.JsonProperty(indexed=False)
+    http2Traces = ndb.JsonProperty(indexed=False)
+    httpsChannelRequestSize = ndb.JsonProperty(indexed=False)
+    httpsChannelResponseSize = ndb.JsonProperty(indexed=False)
+    httpsRequestSize = ndb.IntegerProperty(indexed=False)
+    httpsResponseSize = ndb.IntegerProperty(indexed=False)
+    http2RequestSize = ndb.IntegerProperty(indexed=False)
+    http2ResponseSize = ndb.IntegerProperty(indexed=False)
+    httpsRequestSizeTcp = ndb.IntegerProperty(indexed=False)
+    httpsResponseSizeTcp = ndb.IntegerProperty(indexed=False)
+    http2RequestSizeTcp = ndb.IntegerProperty(indexed=False)
+    http2ResponseSizeTcp = ndb.IntegerProperty(indexed=False)
+    httpsTransferTime = ndb.IntegerProperty(indexed=False)
+    http2TransferTime = ndb.IntegerProperty(indexed=False)
