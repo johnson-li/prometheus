@@ -76,7 +76,9 @@ def full_web(host_name, target_url, https_request_size, https_response_size, htt
 def multi_conn(host_name, target_url, https_request_size, https_response_size, http2_request_size,
                http2_response_size, https_request_size_tcp, https_response_size_tcp, http2_request_size_tcp,
                http2_response_size_tcp, https_transfer_time, http2_transfer_time, https_traces, http2_traces,
-               https_channel_request_size, https_channel_response_size,
+               https_channel_request_size, https_channel_response_size, https_request_size_tcp_tcpdump,
+               https_response_size_tcp_tcpdump, http2_request_size_tcp_tcpdump, http2_response_size_tcp_tcpdump,
+               https_tcpdump_packets_drop, http2_tcpdump_packets_drop,
                time_stamp=int(time.time() * 1000)):
     multi_conn_data = MultiConnData(hostName=host_name, targetUrl=target_url, timeStamp=time_stamp,
                                     httpsRequestSize=https_request_size, httpsTraces=https_traces,
@@ -88,7 +90,13 @@ def multi_conn(host_name, target_url, https_request_size, https_response_size, h
                                     http2ResponseSizeTcp=http2_response_size_tcp, httpsTransferTime=https_transfer_time,
                                     http2TransferTime=http2_transfer_time,
                                     httpsChannelRequestSize=https_channel_request_size,
-                                    httpsChannelResponseSize=https_channel_response_size)
+                                    httpsChannelResponseSize=https_channel_response_size,
+                                    httpsRequestSizeTcpTcpdump=https_request_size_tcp_tcpdump,
+                                    httpsResponseSizeTcpTcpdump=https_response_size_tcp_tcpdump,
+                                    http2RequestSizeTcpTcpdump=http2_request_size_tcp_tcpdump,
+                                    http2ResponseSizeTcpTcpdump=http2_response_size_tcp_tcpdump,
+                                    httpsTcpdumpPacketsDrop=https_tcpdump_packets_drop,
+                                    http2TcpdumpPacketsDrop=http2_tcpdump_packets_drop)
     multi_conn_data.put()
     return multi_conn_data
 
