@@ -1,7 +1,8 @@
 import time
 
 from base import restful_request
-from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData, FullWebData, MultiConnData
+from entity.data import JsonData, ApiRequestData, TrafficSizeData, Http2SupportData, FullWebData, MultiConnData, \
+    PoseidonData
 from flask import Blueprint
 
 __author__ = 'johnson'
@@ -99,6 +100,51 @@ def multi_conn(host_name, target_url, https_request_size, https_response_size, h
                                     http2TcpdumpPacketsDrop=http2_tcpdump_packets_drop)
     multi_conn_data.put()
     return multi_conn_data
+
+
+@log_api.route('/log/poseidon', methods=['POST'])
+@restful_request
+def poseidon(poseidon_data):
+    config = poseidon_data['config']
+    http1_data = poseidon_data['http1Data']
+    http1_measured_data = http1_data['tcpdumpInfo']['measuredTrafficSize']
+    http2_data = poseidon_data['http2Data']
+    http2_measured_data = http2_data['tcpdumpInfo']['measuredTrafficSize']
+    poseidon_db_data = PoseidonData(hostName=config['hostName'], targetUrl=config['targetUrl'],
+                                    timeStamp=int(time.time() * 1000), ignoreOuterLink=config['ignoreOuterLink'],
+                                    channelPoolSize=config['channelPoolSize'],
+                                    http1Traces=http1_data['traceInfoList'],
+                                    http1RequestTcpSizes=http1_data['tcpTrafficSize']['requestTcpTrafficSizeMap'],
+                                    http1ResponseTcpSizes=http1_data['tcpTrafficSize']['responseTcpTrafficSizeMap'],
+                                    http1RequestTcpSize=http1_data['tcpTrafficSize']['requestTcpTrafficSizeAll'],
+                                    http1ResponseTcpSize=http1_data['tcpTrafficSize']['responseTcpTrafficSizeAll'],
+                                    http1Time=http1_data['timeAll'],
+                                    http1TcpdumpPacketsDrop=http1_data['tcpdumpInfo']['tcpdumpPacketsDrop'],
+                                    http1TcpdumpRequestTcpSizeAll=http1_measured_data['requestTcpSizeAll'],
+                                    http1TcpdumpResponseTcpSizeAll=http1_measured_data['responseTcpSizeAll'],
+                                    http1TcpdumpRequestIpSizeAll=http1_measured_data['requestIpSizeAll'],
+                                    http1TcpdumpResponseIpSizeAll=http1_measured_data['responseIpSizeAll'],
+                                    http1TcpdumpRequestTcpSizes=http1_measured_data['requestTcpSizeMap'],
+                                    http1TcpdumpResponseTcpSizes=http1_measured_data['responseTcpSizeMap'],
+                                    http1TcpdumpRequestIpSizes=http1_measured_data['requestIpSizeMap'],
+                                    http1TcpdumpResponseIpSizes=http1_measured_data['responseIpSizeMap'],
+                                    http2Traces=http2_data['traceInfoList'],
+                                    http2RequestTcpSizes=http2_data['tcpTrafficSize']['requestTcpTrafficSizeMap'],
+                                    http2ResponseTcpSizes=http2_data['tcpTrafficSize']['responseTcpTrafficSizeMap'],
+                                    http2RequestTcpSize=http2_data['tcpTrafficSize']['requestTcpTrafficSizeAll'],
+                                    http2ResponseTcpSize=http2_data['tcpTrafficSize']['responseTcpTrafficSizeAll'],
+                                    http2Time=http2_data['timeAll'],
+                                    http2TcpdumpPacketsDrop=http2_data['tcpdumpInfo']['tcpdumpPacketsDrop'],
+                                    http2TcpdumpRequestTcpSizeAll=http2_measured_data['requestTcpSizeAll'],
+                                    http2TcpdumpResponseTcpSizeAll=http2_measured_data['responseTcpSizeAll'],
+                                    http2TcpdumpRequestIpSizeAll=http2_measured_data['requestIpSizeAll'],
+                                    http2TcpdumpResponseIpSizeAll=http2_measured_data['responseIpSizeAll'],
+                                    http2TcpdumpRequestTcpSizes=http2_measured_data['requestTcpSizeMap'],
+                                    http2TcpdumpResponseTcpSizes=http2_measured_data['responseTcpSizeMap'],
+                                    http2TcpdumpRequestIpSizes=http2_measured_data['requestIpSizeMap'],
+                                    http2TcpdumpResponseIpSizes=http2_measured_data['responseIpSizeMap'])
+    poseidon_db_data.put()
+    return poseidon_db_data
 
 
 @log_api.route('/log/all_by_page', methods=['GET'])
