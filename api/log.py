@@ -195,3 +195,11 @@ def get_all_multi_conn(page_size=20, index=0):
     page_size = int(page_size)
     index = int(index)
     return MultiConnData.query().fetch(page_size, offset=page_size * index)
+
+
+@log_api.route('/log/poseidon_all', methods=['GET'])
+@restful_request
+def get_all_poseidon(page_size=20, index=0):
+    page_size = int(page_size)
+    index = int(index)
+    return PoseidonData.query().fetch(page_size, offet=page_size * index)
