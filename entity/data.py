@@ -112,6 +112,7 @@ class PoseidonData(ndb.Model):
     targetUrl = ndb.StringProperty()
     timeStamp = ndb.IntegerProperty()
     ignoreOuterLink = ndb.BooleanProperty()
+    http2Unsupported = ndb.BooleanProperty()
     channelPoolSize = ndb.IntegerProperty()
     http1Traces = ndb.JsonProperty(indexed=False)
     http1RequestTcpSizes = ndb.JsonProperty(indexed=False)

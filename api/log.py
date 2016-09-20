@@ -104,15 +104,12 @@ def multi_conn(host_name, target_url, https_request_size, https_response_size, h
 
 @log_api.route('/log/poseidon', methods=['POST'])
 @restful_request
-def poseidon(poseidon_data):
-    config = poseidon_data['config']
-    http1_data = poseidon_data['http1Data']
+def poseidon(config, http1_data, http2_data, http2_unsupported):
     http1_measured_data = http1_data['tcpdumpInfo']['measuredTrafficSize']
-    http2_data = poseidon_data['http2Data']
     http2_measured_data = http2_data['tcpdumpInfo']['measuredTrafficSize']
     poseidon_db_data = PoseidonData(hostName=config['hostName'], targetUrl=config['targetUrl'],
                                     timeStamp=int(time.time() * 1000), ignoreOuterLink=config['ignoreOuterLink'],
-                                    channelPoolSize=config['channelPoolSize'],
+                                    http2Unsupported=http2_unsupported, channelPoolSize=config['channelPoolSize'],
                                     http1Traces=http1_data['traceInfoList'],
                                     http1RequestTcpSizes=http1_data['tcpTrafficSize']['requestTcpTrafficSizeMap'],
                                     http1ResponseTcpSizes=http1_data['tcpTrafficSize']['responseTcpTrafficSizeMap'],
