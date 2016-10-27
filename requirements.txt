@@ -11,7 +11,6 @@ blinker==1.4
 protobuf==3.1.0.post1
 lxml==3.6.4
 python_memcached==1.58
-pylibmc==1.5.1
 redis==2.10.5
 simplejson==3.9.0
 watchdog==0.8.3
