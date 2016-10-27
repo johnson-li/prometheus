@@ -1,11 +1,16 @@
 import functools
 import json
+import logging
+import sys
+import traceback
 
-from google.appengine.ext import ndb
+from bson import ObjectId
+from pymongo.cursor import Cursor
 
 import response_code
 from flask import request, jsonify, stream_with_context
 from flask.wrappers import Response
+from util import codec
 
 __author__ = 'Johnson'
 
@@ -36,18 +41,24 @@ def _build_deco_chain(decoding_func, decoded_func, decoding_obj):
 
 
 def serialise(data):
-    if isinstance(data, Response):
+    if data is None:
+        return data
+    elif isinstance(data, Response):
         return data
     elif isinstance(data, (str, unicode)):
         return data
     elif isinstance(data, (int, long, float, bool)):
         return str(data)
-    elif isinstance(data, ndb.Model):
-        return data.to_dict()
+    # elif isinstance(data, ndb.Model):
+    #     return data.to_dict()
     elif isinstance(data, dict):
-        return {serialise(key): serialise(val) for key, val in data.iteritems()}
+        return {codec.decode_mongo_key(serialise(key)): serialise(val) for key, val in data.iteritems()}
     elif isinstance(data, list):
         return [serialise(i) for i in data]
+    elif isinstance(data, Cursor):
+        return serialise([d for d in data.limit(0)])
+    elif isinstance(data, ObjectId):
+        return str(data)
     else:
         raise Exception('Unknown return type: ' + str(type(data)))
 
@@ -62,6 +73,8 @@ def restful_request(func):
         except Exception as e:
             resp['rc'] = response_code.FAIL
             resp['content'] = type(e).__name__ + ' ' + e.message
+            traceback.print_exc(file=sys.stdout)
+            logging.error(e.message)
         return jsonify(resp)
 
     _build_deco_chain(wrapped, func, restful_request)

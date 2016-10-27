@@ -108,6 +108,7 @@ class MultiConnData(ndb.Model):
 
 
 class PoseidonData(ndb.Model):
+    note = ndb.StringProperty()
     hostName = ndb.StringProperty()
     targetUrl = ndb.StringProperty()
     timeStamp = ndb.IntegerProperty()
